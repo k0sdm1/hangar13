@@ -1,7 +1,31 @@
-/venv
-/env
+# Python
+*.py[cod]
+*.$py.class
+hangar13/__pycache__/
+__pycache__/
+*.so
+*.dylib
+*.pyd
+*.sqlite3
+.idea/
+.DS_Store
+*.log
+.mypy_cache
+.pytest_cache
+.ruff_cache
+coverage.xml
+
+# Environments
+.env/
 .env
-.vs
+.codex
+venv/
+.vscode/
+
+# Media
+media/
+
+
+.env
 .vscode/
 *.bak
-db.sqlite3
