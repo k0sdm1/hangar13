@@ -4,7 +4,7 @@ from django.shortcuts import render
 
 
 async def index(request):
-    context = {"username": "pessimist"}
+    context = {"username": request.user.username if request.user.is_authenticated else "stranger"}
     return render(request, "community/index.html", context)
 
 

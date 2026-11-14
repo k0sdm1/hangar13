@@ -1,0 +1,239 @@
+{% extends 'blank.html' %}
+{% load i18n %}
+
+
+{% block title %}
+    {% translate "Регистрация" %}
+{% endblock %}
+{% block header %}
+{% endblock %}
+
+{% block content %}
+<!-- Ensure your existing CSS block is present -->
+
+<div class="container-narrow">
+    {% translate "SYSTEM STATUS: Registration" %}
+    <p style="text-align: left; color: var(--neon-green); margin-bottom: 2rem;">
+        {% translate "Material is being  created." %}
+    </p>
+
+    <form method="post" action="{% url 'register' %}" id="registrationForm">
+        {% csrf_token %}
+
+        <!-- Global Error Message -->
+        {% if form.non_field_errors %}
+            <div class="error-container" style="margin-bottom: 20px; padding: 10px; border-color: red; text-align: center;">
+                <ul style="list-style: none; padding: 0; margin: 0; color: #ff4444;">
+                    {% for error in form.non_field_errors %}
+                        <li style="font-size: 0.8rem;">⚠ {{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="form-grid">
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}" class="form-label">
+                    {{ form.email.label }}
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="field-error">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Username Field -->
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}" class="form-label">
+                    {{ form.username.label }}
+                </label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="field-error">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Password Field with Toggle -->
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}" class="form-label">
+                    {{ form.password.label }}
+                </label>
+                <div class="password-wrapper">
+                    {{ form.password }}
+                    <button type="button" class="password-toggle" onclick="togglePassword('{{ form.password.id_for_label }}', this)" aria-label="Toggle password visibility">
+                        🙉
+                    </button>
+                </div>
+                {% if form.password.errors %}
+                    <div class="field-error">{{ form.password.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Password Again Field with Toggle -->
+            <div class="form-group">
+                <label for="{{ form.password_again.id_for_label }}" class="form-label">
+                    {{ form.password_again.label }}
+                </label>
+                <div class="password-wrapper">
+                    {{ form.password_again }}
+                    <button type="button" class="password-toggle" onclick="togglePassword('{{ form.password_again.id_for_label }}', this)" aria-label="Toggle password visibility">
+                        🙉
+                    </button>
+                </div>
+                {% if form.password_again.errors %}
+                    <div class="field-error">{{ form.password_again.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Language Field -->
+            <div class="form-group">
+                <label for="{{ form.language.id_for_label }}" class="form-label">
+                    {{ form.language.label }}
+                </label>
+                {{ form.language }}
+                {% if form.language.errors %}
+                    <div class="field-error">{{ form.language.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <button type="submit" class="btn" style="font-size: 1rem; padding: 15px 30px;">
+                {% translate "INITIALIZE" %}
+            </button>
+        </div>
+        <div style="margin-top: 2rem; text-align: center;">
+        {% translate "Уже есть аккаунт?" %} <a href="{% url 'login' %}" style="color: var(--amber);">{% translate "Войти" %}</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* ... [Keep your existing CSS from previous response] ... */
+    
+    .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-label {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.8rem;
+        color: var(--amber);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 2px solid var(--metal-grey);
+        color: var(--neon-green);
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.7rem;
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+        outline: none;
+        border-color: var(--neon-green);
+        box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+    }
+
+    select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2339ff14%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px top 50%;
+        background-size: 12px auto;
+        padding-right: 30px;
+    }
+
+    .field-error {
+        color: #ff4444;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.6rem;
+        margin-top: 5px;
+        text-shadow: 1px 1px 0 #000;
+    }
+
+    /* --- NEW PASSWORD TOGGLE STYLES --- */
+    .password-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: var(--metal-grey);
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 5px;
+        transition: color 0.3s;
+        z-index: 10;
+    }
+
+    .password-toggle:hover {
+        color: var(--neon-green);
+    }
+
+    /* Adjust padding of password input to make room for the icon */
+    input[type="password"] {
+        padding-right: 40px; 
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            width: 95%;
+            padding: 1rem;
+        }
+        .form-grid {
+            gap: 1rem;
+        }
+        h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<script>
+    function togglePassword(inputId, button) {
+        const input = document.getElementById(inputId);
+        const type = input.getAttribute('type');
+        
+        if (type === 'password') {
+            input.setAttribute('type', 'text');
+            button.textContent = '🙈'; // Change icon to monkey/hidden
+            button.style.color = 'var(--neon-green)';
+        } else {
+            input.setAttribute('type', 'password');
+            button.textContent = '🙉'; // Change icon to eye
+            button.style.color = 'var(--metal-grey)';
+        }
+    }
+</script>
+{% endblock %}

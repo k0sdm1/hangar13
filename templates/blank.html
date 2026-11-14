@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load i18n %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -87,25 +88,53 @@
 
         /* --- LAYOUT & COMPONENTS --- */
         .upper {
-            margin: 40px auto;
-            border: 4px solid var(--metal-grey);
-            background-color: rgba(30, 30, 30, 0.85);
-            padding: 2rem;
+            /* Fixed positioning to keep it at the top */
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
+            z-index: 1000; /* Ensure it stays above other content */
+
+            /* Visual Styling */
+            background-color: rgba(30, 30, 30, 0.85);
+            border-bottom: 4px solid var(--metal-grey, #555); /* Fallback color if variable missing */
+            padding: 0.5rem 1rem; /* Adjusted padding for better look */
+            
+            /* Box Shadow */
             box-shadow: 
                 0 0 0 4px #111,
                 0 0 20px rgba(0,0,0,0.8),
                 inset 0 0 50px rgba(0,0,0,0.5);
-            /* Corner Bolts */
+
+            /* Corner Bolts (Fixed background-position syntax) */
             background-image: 
                 radial-gradient(#555 15%, transparent 16%),
                 radial-gradient(#555 15%, transparent 16%);
             background-size: 20px 20px;
-            background-position: 0 0, top right, bottom left, bottom right;
+            background-position: 
+                0 0,          /* Top Left */
+                100% 0,       /* Top Right */
+                0 100%,       /* Bottom Left */
+                100% 100%;    /* Bottom Right */
             background-repeat: no-repeat;
+
+            /* Flexbox Layout for Header Content */
+            display: flex;
+            align-items: center; /* Vertically center logo and list */
+            justify-content: space-between; /* Pushes logo to left, list to right */
+            box-sizing: border-box; /* Ensures padding doesn't increase width */
+        }
+        .nav-list {
+            display: flex;
+            align-items: center;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            gap: 15px; /* Space between buttons */
+        }
+        .user-profile {
+            margin-left: auto; /* Pushes it to the far right while staying inline */
+            /* Remove position: sticky, right: 0, width: max-content */
         }
         .container {
             width: 90%;
@@ -127,16 +156,55 @@
             background-position: 0 0, top right, bottom left, bottom right;
             background-repeat: no-repeat;
         }
+        .container-narrow {
+            width: 50%;
+            {% comment %} max-width: 800px; {% endcomment %}
+            margin: 40px auto;
+            border: 4px solid var(--metal-grey);
+            background-color: rgba(30, 30, 30, 0.85);
+            padding: 2rem;
+            position: relative;
+            box-shadow: 
+                0 0 0 4px #111,
+                0 0 20px rgba(0,0,0,0.8),
+                inset 0 0 50px rgba(0,0,0,0.5);
+            /* Corner Bolts */
+            background-image: 
+                radial-gradient(#555 15%, transparent 16%),
+                radial-gradient(#555 15%, transparent 16%);
+            background-size: 20px 20px;
+            background-position: 0 0, top right, bottom left, bottom right;
+            background-repeat: no-repeat;
+        }
+
+        .error-container {
+            width: 50%;
+            margin: 40px auto;
+            border: 4px solid var(--metal-grey);
+            background-color: rgba(30, 30, 30, 0.85);
+            padding: 2rem;
+            position: relative;
+            box-shadow: 
+                0 0 0 4px #111,
+                0 0 20px rgba(0,0,0,0.8),
+                inset 0 0 50px rgba(0,0,0,0.5);
+            /* Corner Bolts */
+            background-image: 
+                radial-gradient(#555 15%, transparent 16%),
+                radial-gradient(#555 15%, transparent 16%);
+            background-size: 20px 20px;
+            background-position: 0 0, top right, bottom left, bottom right;
+            background-repeat: no-repeat;
+        }
 
         .logo {
-            text-align: left;
+            margin: 0;
+            font-size: 1.5rem;
+            color: #fff;
+            /* Optional: Prevent logo from shrinking on small screens */
+            flex-shrink: 0; 
+            margin-right: 20px; /* Space between logo and buttons */
             color: var(--amber);
-            font-size: 3rem;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            margin-top: 0;
-            text-shadow: 2px 2px 0px #000;
-            animation: flicker-text 4s infinite;
         }
         h1 {
             text-align: center;
@@ -162,7 +230,7 @@
             color: #fff;
             padding: 10px 20px;
             text-decoration: none;
-            font-family: 'Silkscreen', cursive;
+            font-family: 'Press Start 2P', cursive;
             text-transform: uppercase;
             cursor: pointer;
             box-shadow: 3px 3px 0px #000;
@@ -251,21 +319,20 @@
             height: 10px !important;
             background-color: rgba(100, 200, 255, 0.6) !important;
         }
-
-
-
     </style>
-    {% block head %}
-        
-    {% endblock %}
+    {% block header %}
     <div class="upper">
-        <h1 class="logo">ангар-13</h1>
-        <ul style="display: flex; list-style-type: none; gap: 15px; padding: 0;">
+        <h1 class="logo">hangar-13</h1>
+        <ul class="nav-list">
             <li><button class="btn">menu</button></li>
             <li><button class="btn">vote</button></li>
-            <li><button class="btn">Написать письмо</button></li>
+            <li><button class="btn">send mail</button></li>
+            <!-- User profile is now inside an li -->
+            <li class="user-profile">User</li>
         </ul>
     </div>
+    {% endblock %}
+
 </head>
 <body>
 
@@ -277,17 +344,16 @@
 
     <!-- Main Content Area -->
 
-    <main class="container">
-        
         {% block content %}
-        <!-- Django Template Block -->
-        <p>SYSTEM STATUS: UNSTABLE</p>
-        <p>Welcome to the facility. The lights are flickering for a reason. Proceed with caution.</p>
-        <br>
-        <a href="#" class="btn">Enter Facility</a>
+        <main class="container">
+            
+            <!-- Django Template Block -->
+            <p>SYSTEM STATUS: UNSTABLE</p>
+            <p>Welcome to the facility. The lights are flickering for a reason. Proceed with caution.</p>
+            <br>
+            <a href="#" class="btn">Enter Facility</a>
+        </main>
         {% endblock %}
-
-    </main>
 
     <!-- Script for Dust and Dripping Water -->
     <script>

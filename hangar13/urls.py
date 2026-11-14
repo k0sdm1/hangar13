@@ -16,12 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from django.views.generic.base import RedirectView
+from django.views.generic.base import RedirectView, TemplateView
+from rest_framework.routers import DefaultRouter
+
+from apps.accounts.views.api import v1 as api_views
+
+
+router = DefaultRouter()
+router.register("user", api_views.UserViewSet, basename="api-user")
 
 urlpatterns = [
-    path("", RedirectView.as_view(url="community/", permanent=False), name="redirect_to_community"),
+    path("api/v1/", include(router.urls), name="hangar_api"),
     path('admin/', admin.site.urls),
+    path("user/", include("accounts.urls")),
     path("community/", include("community.urls")),
+    path("502", TemplateView.as_view(template_name='502.html'), name='error502'),
+    path("", RedirectView.as_view(url="community/", permanent=False), name="redirect_to_community"),
 ]
 
 handler404 = "community.views.page_404"

@@ -1,7 +1,14 @@
 {% extends 'blank.html' %}
+{% load i18n %}
 
 {% block title %}404{% endblock %}
 
 {% block content %}
-    <h1>Ты ошибся адресом</h1>
+<div class="error-container">
+    <p>{% translate "SYSTEM STATUS: Warning" %}</p>
+    <p>{% translate "Material unavailable." %}</p>
+    <p>{% translate "Error code: 404" %}</p>
+    <br>
+    <a href="community" class="btn">{% translate "Back to Facility" %}</a>
+</div>
 {% endblock %}
