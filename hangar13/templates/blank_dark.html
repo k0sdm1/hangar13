@@ -1,0 +1,1231 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hangar 13{% endblock %}</title>
+
+    <!-- ============================================================
+         HANGAR 13 — BASE TEMPLATE
+         "Everything falls apart eventually."
+    ============================================================ -->
+
+    <style>
+        /* ──────────────────────────────────────────
+           RESET & ROOT VARIABLES
+        ────────────────────────────────────────── */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --rust-dark: #2a1a0e;
+            --rust-mid: #5c3a1e;
+            --rust-light: #8b5e3c;
+            --rust-pale: #a67c52;
+            --brick-red: #4a2c1a;
+            --brick-dark: #2d1810;
+            --metal-grey: #3a3a3a;
+            --metal-dark: #1e1e1e;
+            --metal-light: #555555;
+            --concrete: #2f2f2f;
+            --oil-stain: #1a1a1a;
+            --fluorescent-glow: rgba(180, 200, 160, 0.08);
+            --danger-red: #8b2500;
+            --warning-yellow: #6b5b1e;
+            --grime: rgba(0, 0, 0, 0.6);
+            --text-primary: #c4b090;
+            --text-secondary: #7a6a55;
+            --text-dim: #4a4035;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--metal-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+
+        /* ══════════════════════════════════════════
+           BRICK WALL BACKGROUND (Procedural CSS)
+        ══════════════════════════════════════════ */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -3;
+            background-color: var(--brick-dark);
+            /* Brick pattern */
+            background-image:
+                /* Horizontal mortar lines */
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 38px,
+                    rgba(0,0,0,0.4) 38px,
+                    rgba(0,0,0,0.4) 42px
+                ),
+                /* Vertical mortar lines — offset every other row */
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 58px,
+                    rgba(0,0,0,0.3) 58px,
+                    rgba(0,0,0,0.3) 62px
+                ),
+                /* Offset vertical lines for brick stagger */
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 28px,
+                    rgba(0,0,0,0.2) 28px,
+                    rgba(0,0,0,0.2) 31px
+                );
+            background-size:
+                100% 42px,
+                100% 42px,
+                62px 42px;
+        }
+
+        /* Brick color variation overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -2;
+            opacity: 0.7;
+            background:
+                radial-gradient(ellipse at 20% 30%, rgba(90,40,15,0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(60,25,10,0.5) 0%, transparent 40%),
+                radial-gradient(ellipse at 40% 80%, rgba(80,35,12,0.3) 0%, transparent 45%),
+                radial-gradient(ellipse at 85% 20%, rgba(50,20,8,0.4) 0%, transparent 35%);
+        }
+
+
+        /* ══════════════════════════════════════════
+           RUSTY METAL OVERLAY
+        ══════════════════════════════════════════ */
+        .rust-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.3;
+            background:
+                /* Rust streaks */
+                repeating-linear-gradient(
+                    175deg,
+                    transparent 0px,
+                    transparent 80px,
+                    rgba(139, 69, 19, 0.15) 80px,
+                    rgba(139, 69, 19, 0.08) 85px,
+                    transparent 90px
+                ),
+                repeating-linear-gradient(
+                    182deg,
+                    transparent 0px,
+                    transparent 120px,
+                    rgba(160, 82, 45, 0.1) 120px,
+                    rgba(160, 82, 45, 0.05) 128px,
+                    transparent 136px
+                ),
+                /* Rust patches */
+                radial-gradient(ellipse at 15% 25%, rgba(139,69,19,0.3) 0%, transparent 30%),
+                radial-gradient(ellipse at 75% 70%, rgba(160,82,45,0.25) 0%, transparent 25%),
+                radial-gradient(ellipse at 50% 10%, rgba(101,67,33,0.2) 0%, transparent 35%),
+                radial-gradient(ellipse at 90% 45%, rgba(139,69,19,0.2) 0%, transparent 20%);
+        }
+
+        /* Oil stain on floor area */
+        .oil-stain {
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%; height: 30%;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at 30% 80%, rgba(10,10,10,0.6) 0%, transparent 50%),
+                radial-gradient(ellipse at 60% 60%, rgba(15,12,8,0.4) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 90%, rgba(8,8,8,0.5) 0%, transparent 35%);
+        }
+
+
+        /* ══════════════════════════════════════════
+           FLICKERING FLUORESCENT LIGHTS
+        ══════════════════════════════════════════ */
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            3%       { opacity: 0.4; }
+            6%       { opacity: 1; }
+            7%       { opacity: 0.6; }
+            9%       { opacity: 1; }
+            40%      { opacity: 1; }
+            42%      { opacity: 0.7; }
+            44%      { opacity: 1; }
+            80%      { opacity: 1; }
+            81%      { opacity: 0.5; }
+            82%      { opacity: 0.9; }
+            83%      { opacity: 1; }
+        }
+
+        @keyframes flickerSlow {
+            0%, 100% { opacity: 0.9; }
+            50%      { opacity: 0.5; }
+            52%      { opacity: 0.9; }
+            54%      { opacity: 0.6; }
+            56%      { opacity: 0.9; }
+        }
+
+        @keyframes buzz {
+            0%   { text-shadow: 0 0 5px rgba(180,200,160,0.3); }
+            50%  { text-shadow: 0 0 15px rgba(180,200,160,0.1); }
+            100% { text-shadow: 0 0 5px rgba(180,200,160,0.3); }
+        }
+
+        .light-flicker {
+            animation: flicker 5s infinite;
+        }
+
+        .light-flicker-slow {
+            animation: flickerSlow 8s infinite;
+        }
+
+
+        /* ══════════════════════════════════════════
+           DUST PARTICLES
+        ══════════════════════════════════════════ */
+        @keyframes dustFloat {
+            0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+            10%  { opacity: 0.4; }
+            90%  { opacity: 0.4; }
+            100% { transform: translate(100px, -200px) rotate(360deg); opacity: 0; }
+        }
+
+        .dust-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .dust-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(180, 170, 150, 0.3);
+            border-radius: 50%;
+            animation: dustFloat linear infinite;
+        }
+
+        .dust-particle:nth-child(1)  { left: 10%; top: 20%; animation-duration: 12s; animation-delay: 0s; width: 1px; height: 1px; }
+        .dust-particle:nth-child(2)  { left: 25%; top: 60%; animation-duration: 15s; animation-delay: 2s; width: 3px; height: 3px; }
+        .dust-particle:nth-child(3)  { left: 40%; top: 10%; animation-duration: 10s; animation-delay: 4s; }
+        .dust-particle:nth-child(4)  { left: 55%; top: 70%; animation-duration: 18s; animation-delay: 1s; width: 1px; height: 1px; }
+        .dust-particle:nth-child(5)  { left: 70%; top: 30%; animation-duration: 14s; animation-delay: 3s; width: 3px; height: 3px; }
+        .dust-particle:nth-child(6)  { left: 85%; top: 50%; animation-duration: 11s; animation-delay: 5s; }
+        .dust-particle:nth-child(7)  { left: 15%; top: 80%; animation-duration: 16s; animation-delay: 0.5s; width: 1px; height: 1px; }
+        .dust-particle:nth-child(8)  { left: 60%; top: 40%; animation-duration: 13s; animation-delay: 2.5s; }
+        .dust-particle:nth-child(9)  { left: 90%; top: 15%; animation-duration: 17s; animation-delay: 4.5s; width: 3px; height: 3px; }
+        .dust-particle:nth-child(10) { left: 35%; top: 90%; animation-duration: 14s; animation-delay: 1.5s; }
+        .dust-particle:nth-child(11) { left: 50%; top: 5%;  animation-duration: 11s; animation-delay: 6s; width: 1px; height: 1px; }
+        .dust-particle:nth-child(12) { left: 75%; top: 85%; animation-duration: 19s; animation-delay: 3.5s; }
+
+
+        /* ══════════════════════════════════════════
+           WATER DRIP EFFECT
+        ══════════════════════════════════════════ */
+        @keyframes drip {
+            0%   { transform: translateY(-10px); opacity: 0; }
+            10%  { opacity: 0.6; }
+            80%  { opacity: 0.6; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        .drip-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .water-drip {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(to bottom, transparent, rgba(100, 120, 100, 0.3));
+            animation: drip linear infinite;
+        }
+
+        .water-drip:nth-child(1) { left: 20%; animation-duration: 4s; animation-delay: 0s; }
+        .water-drip:nth-child(2) { left: 55%; animation-duration: 5s; animation-delay: 1.5s; }
+        .water-drip:nth-child(3) { left: 80%; animation-duration: 6s; animation-delay: 3s; }
+
+
+        /* ══════════════════════════════════════════
+           LIGHT BEAMS (from ceiling fixtures)
+        ══════════════════════════════════════════ */
+        @keyframes lightBeamPulse {
+            0%, 100% { opacity: 0.03; }
+            50%      { opacity: 0.07; }
+        }
+
+        .light-beam {
+            position: fixed;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background: linear-gradient(
+                to bottom,
+                rgba(180, 200, 160, 0.1),
+                rgba(180, 200, 160, 0.02) 60%,
+                transparent
+            );
+            filter: blur(2px);
+        }
+
+        .light-beam:nth-child(1) { left: 15%; animation: lightBeamPulse 4s ease-in-out infinite; }
+        .light-beam:nth-child(2) { left: 45%; animation: lightBeamPulse 5s ease-in-out infinite 1s; }
+        .light-beam:nth-child(3) { left: 75%; animation: lightBeamPulse 6s ease-in-out infinite 2s; }
+
+
+        /* ══════════════════════════════════════════
+           SCANLINE / NOISE OVERLAY
+        ══════════════════════════════════════════ */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 9998;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 256px 256px;
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 9997;
+            pointer-events: none;
+            background: radial-gradient(
+                ellipse at center,
+                transparent 40%,
+                rgba(0, 0, 0, 0.5) 100%
+            );
+        }
+
+
+        /* ══════════════════════════════════════════
+           LAYOUT STRUCTURE
+        ══════════════════════════════════════════ */
+        .hangar-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── TOP HEADER BAR (industrial signage) ── */
+        .header-bar {
+            background: linear-gradient(
+                to bottom,
+                var(--metal-dark),
+                rgba(30, 30, 30, 0.95)
+            );
+            border-bottom: 3px solid var(--rust-mid);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+        }
+
+        .header-bar::before {
+            content: '';
+            display: block;
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--warning-yellow) 0px,
+                var(--warning-yellow) 20px,
+                transparent 20px,
+                transparent 40px
+            );
+            opacity: 0.5;
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            border: 2px solid var(--rust-light);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--rust-pale);
+            background: rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            border-radius: 2px;
+        }
+
+        .logo-text h1 {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.4rem;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(180, 200, 160, 0.1);
+            animation: buzz 3s ease-in-out infinite;
+        }
+
+        .logo-text .subtitle {
+            font-size: 0.65rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        /* ── NAVIGATION (riveted metal panel) ── */
+        .nav-panel {
+            background: linear-gradient(
+                to right,
+                rgba(40, 30, 20, 0.9),
+                rgba(35, 25, 18, 0.95)
+            );
+            border-bottom: 2px solid var(--rust-mid);
+            position: relative;
+        }
+
+        /* Rivet decorations */
+        .nav-panel::before,
+        .nav-panel::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, var(--metal-light) 30%, var(--rust-mid) 70%);
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.5), 0 0 3px rgba(0,0,0,0.3);
+        }
+
+        .nav-panel::before { left: 10px; }
+        .nav-panel::after  { right: 10px; }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 0;
+        }
+
+        .nav-links li a {
+            display: block;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            border-left: 1px solid rgba(92, 58, 30, 0.3);
+            position: relative;
+        }
+
+        .nav-links li:first-child a {
+            border-left: none;
+        }
+
+        .nav-links li a:hover {
+            color: var(--text-primary);
+            background: rgba(139, 69, 19, 0.1);
+            text-shadow: 0 0 8px rgba(139, 69, 19, 0.3);
+        }
+
+        .nav-links li a.active {
+            color: var(--rust-pale);
+            background: rgba(139, 69, 19, 0.15);
+            border-bottom: 2px solid var(--danger-red);
+        }
+
+
+        /* ── MAIN CONTENT AREA ── */
+        .main-content {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 40px 30px;
+        }
+
+
+        /* ══════════════════════════════════════════
+           ALERT / WARNING BANNER
+        ══════════════════════════════════════════ */
+        .warning-banner {
+            background: repeating-linear-gradient(
+                45deg,
+                var(--warning-yellow),
+                var(--warning-yellow) 10px,
+                #4a3f15 10px,
+                #4a3f15 20px
+            );
+            padding: 8px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .warning-banner-inner {
+            background: rgba(0, 0, 0, 0.75);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--warning-yellow);
+        }
+
+        .warning-icon {
+            font-size: 1.2rem;
+            animation: flickerSlow 3s infinite;
+        }
+
+
+        /* ══════════════════════════════════════════
+           FLASH MESSAGES (Django messages framework)
+        ══════════════════════════════════════════ */
+        .messages-area {
+            margin-bottom: 25px;
+        }
+
+        .message-item {
+            padding: 14px 20px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            position: relative;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .message-item::before {
+            content: '▸';
+            margin-right: 10px;
+            opacity: 0.5;
+        }
+
+        .message-item.message-error,
+        .message-item.message-warning {
+            border-color: var(--danger-red);
+            color: #c47a5a;
+        }
+
+        .message-item.message-success {
+            border-color: #4a6b3a;
+            color: #8aaa6a;
+        }
+
+        .message-item.message-info {
+            border-color: var(--rust-light);
+            color: var(--text-secondary);
+        }
+
+
+        /* ══════════════════════════════════════════
+           CONTENT PANELS (metal plates)
+        ══════════════════════════════════════════ */
+        .content-panel {
+            background: linear-gradient(
+                135deg,
+                rgba(45, 35, 25, 0.9),
+                rgba(35, 28, 20, 0.95)
+            );
+            border: 1px solid var(--rust-mid);
+            padding: 30px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        /* Corner rivets */
+        .content-panel::before,
+        .content-panel::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, var(--metal-light) 40%, var(--rust-dark) 100%);
+            border-radius: 50%;
+            box-shadow: inset 0 1px 1px rgba(0,0,0,0.5);
+        }
+
+        .content-panel::before { top: 8px; left: 8px; }
+        .content-panel::after  { top: 8px; right: 8px; }
+
+        .panel-corner-br {
+            position: absolute;
+            bottom: 8px; right: 8px;
+            width: 6px; height: 6px;
+            background: radial-gradient(circle, var(--metal-light) 40%, var(--rust-dark) 100%);
+            border-radius: 50%;
+            box-shadow: inset 0 1px 1px rgba(0,0,0,0.5);
+        }
+
+        .panel-corner-bl {
+            position: absolute;
+            bottom: 8px; left: 8px;
+            width: 6px; height: 6px;
+            background: radial-gradient(circle, var(--metal-light) 40%, var(--rust-dark) 100%);
+            border-radius: 50%;
+            box-shadow: inset 0 1px 1px rgba(0,0,0,0.5);
+        }
+
+        .panel-title {
+            font-size: 1rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(92, 58, 30, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-title::before {
+            content: '■';
+            color: var(--danger-red);
+            font-size: 0.6rem;
+        }
+
+
+        /* ══════════════════════════════════════════
+           TYPOGRAPHY HELPERS
+        ══════════════════════════════════════════ */
+        p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        h2 {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.3rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(180, 200, 160, 0.05);
+        }
+
+        h3 {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--rust-pale);
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: var(--rust-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-bottom: 1px dotted rgba(139, 94, 60, 0.3);
+        }
+
+        a:hover {
+            color: var(--text-primary);
+            text-shadow: 0 0 8px rgba(139, 69, 19, 0.3);
+        }
+
+        strong {
+            color: var(--text-primary);
+        }
+
+
+        /* ══════════════════════════════════════════
+           BUTTONS (riveted metal plates)
+        ══════════════════════════════════════════ */
+        .btn {
+            display: inline-block;
+            padding: 10px 24px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            border: 1px solid var(--rust-mid);
+            background: linear-gradient(to bottom, rgba(60,45,30,0.8), rgba(40,30,20,0.9));
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 4px; height: 4px;
+            background: radial-gradient(circle, var(--metal-light), var(--rust-dark));
+            border-radius: 50%;
+            box-shadow:
+                calc(100% - 6px) 0 0 radial-gradient(circle, var(--metal-light), var(--rust-dark)),
+                0 calc(100% - 6px) 0 radial-gradient(circle, var(--metal-light), var(--rust-dark)),
+                calc(100% - 6px) calc(100% - 6px) 0 radial-gradient(circle, var(--metal-light), var(--rust-dark));
+        }
+
+        .btn:hover {
+            color: var(--text-primary);
+            border-color: var(--rust-light);
+            background: linear-gradient(to bottom, rgba(80,55,35,0.8), rgba(55,40,25,0.9));
+            box-shadow: 0 0 15px rgba(139, 69, 19, 0.2);
+        }
+
+        .btn-danger {
+            border-color: var(--danger-red);
+            color: #a05030;
+        }
+
+        .btn-danger:hover {
+            border-color: #a03020;
+            color: #c07050;
+            box-shadow: 0 0 15px rgba(139, 37, 0, 0.3);
+        }
+
+
+        /* ══════════════════════════════════════════
+           TABLES (industrial data readouts)
+        ══════════════════════════════════════════ */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .data-table thead th {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 15px;
+            text-align: left;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            font-size: 0.7rem;
+            border-bottom: 2px solid var(--rust-mid);
+        }
+
+        .data-table tbody td {
+            padding: 10px 15px;
+            border-bottom: 1px solid rgba(92, 58, 30, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(139, 69, 19, 0.05);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+
+        /* ══════════════════════════════════════════
+           FOOTER (gritty bottom plate)
+        ══════════════════════════════════════════ */
+        .footer-bar {
+            background: linear-gradient(
+                to top,
+                var(--metal-dark),
+                rgba(25, 20, 15, 0.95)
+            );
+            border-top: 3px solid var(--rust-mid);
+            padding: 25px 30px;
+            position: relative;
+        }
+
+        .footer-bar::before {
+            content: '';
+            display: block;
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--danger-red) 0px,
+                var(--danger-red) 15px,
+                transparent 15px,
+                transparent 30px
+            );
+            opacity: 0.4;
+            margin-bottom: 20px;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+
+        .footer-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--danger-red);
+            animation: flickerSlow 2s infinite;
+            box-shadow: 0 0 6px rgba(139, 37, 0, 0.5);
+        }
+
+
+        /* ══════════════════════════════════════════
+           FORM STYLES (industrial input panels)
+        ══════════════════════════════════════════ */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--rust-mid);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--rust-light);
+            box-shadow: 0 0 10px rgba(139, 69, 19, 0.15), inset 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-dim);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+
+        /* ══════════════════════════════════════════
+           SIDEBAR LAYOUT (optional)
+        ══════════════════════════════════════════ */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 25px;
+        }
+
+        .sidebar-panel {
+            background: linear-gradient(
+                135deg,
+                rgba(40, 30, 20, 0.85),
+                rgba(30, 22, 15, 0.9)
+            );
+            border: 1px solid var(--rust-mid);
+            padding: 20px;
+        }
+
+
+        /* ══════════════════════════════════════════
+           RESPONSIVE
+        ══════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .header-inner {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-links li a {
+                padding: 10px 16px;
+                font-size: 0.7rem;
+            }
+
+            .main-content {
+                padding: 20px 15px;
+            }
+
+            .content-panel {
+                padding: 20px;
+            }
+
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+
+
+        /* ══════════════════════════════════════════
+           SCROLLBAR (custom industrial style)
+        ══════════════════════════════════════════ */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--metal-dark);
+            border-left: 1px solid var(--rust-mid);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--rust-mid), var(--brick-red));
+            border: 1px solid var(--rust-dark);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, var(--rust-light), var(--rust-mid));
+        }
+
+
+        /* ══════════════════════════════════════════
+           LOADING SCREEN (optional)
+        ══════════════════════════════════════════ */
+        .loading-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--metal-dark);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            animation: flickerSlow 2s infinite;
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 3px;
+            background: rgba(92, 58, 30, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, var(--rust-light), transparent);
+            animation: loadSlide 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loadSlide {
+            0%   { left: -100%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ════════════════════════════════════════
+         LOADING SCREEN
+    ════════════════════════════════════════ -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-text">Initializing Hangar Systems...</div>
+        <div class="loading-bar"></div>
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         ATMOSPHERIC OVERLAYS
+    ════════════════════════════════════════ -->
+    <div class="noise-overlay"></div>
+    <div class="vignette"></div>
+    <div class="rust-overlay"></div>
+    <div class="oil-stain"></div>
+
+    <!-- Light beams from ceiling -->
+    <div class="light-beam"></div>
+    <div class="light-beam"></div>
+    <div class="light-beam"></div>
+
+    <!-- Dust particles -->
+    <div class="dust-container">
+        <div class="dust-particle"></div>
+        <div class="dust-particle"></div>
+        <div class="dust-particle"></div>
+        <div class="dust-particle"></div>
+        <div class="dust-particle"></div>
+        <div class="dust-particle"></div>
+        <div class="dust-particle"></div>
+        <div class="dust-particle"></div>
+        <div class="dust-particle"></div>
+        <div class="dust-particle"></div>
+        <div class="dust-particle"></div>
+        <div class="dust-particle"></div>
+    </div>
+
+    <!-- Water drips -->
+    <div class="drip-container">
+        <div class="water-drip"></div>
+        <div class="water-drip"></div>
+        <div class="water-drip"></div>
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         MAIN HANGAR WRAPPER
+    ════════════════════════════════════════ -->
+    <div class="hangar-wrapper">
+
+        <!-- ── HEADER BAR ── -->
+        <header class="header-bar light-flicker">
+            <div class="header-inner">
+                <div class="logo-area">
+                    <div class="logo-icon">⚙</div>
+                    <div class="logo-text">
+                        <h1>{% block header_title %}Hangar 13{% endblock %}</h1>
+                        <div class="subtitle">{% block header_subtitle %}Restricted Access{% endblock %}</div>
+                    </div>
+                </div>
+                <div style="font-size: 0.65rem; color: var(--text-dim); letter-spacing: 2px;">
+                    {% block header_meta %}SECTOR 7-G — LEVEL BETA{% endblock %}
+                </div>
+            </div>
+        </header>
+
+        <!-- ── NAVIGATION PANEL ── -->
+        <nav class="nav-panel light-flicker-slow">
+            <div class="nav-inner">
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Dashboard</a></li>
+                    <li><a href="#" class="{% if request.resolver_match.url_name == 'operations' %}active{% endif %}">Operations</a></li>
+                    <li><a href="#" class="{% if request.resolver_match.url_name == 'inventory' %}active{% endif %}">Inventory</a></li>
+                    <li><a href="#" class="{% if request.resolver_match.url_name == 'logs' %}active{% endif %}">Logs</a></li>
+                    <li><a href="#" class="{% if request.resolver_match.url_name == 'settings' %}active{% endif %}">Settings</a></li>
+                    {% if user.is_authenticated %}
+                    
+                    <li><a href="{% url 'logout' %}" style="color: var(--danger-red);">Logout</a></li>
+                    {% else %}
+                    <li><a href="{% url 'login' %}" style="color: var(--danger-red);">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+
+
+        <!-- ════════════════════════════════════
+             MAIN CONTENT AREA
+        ════════════════════════════════════ -->
+        <main class="main-content">
+
+            <!-- Warning Banner (optional) -->
+            {% block warning_banner %}
+            <!-- Uncomment to use:
+            <div class="warning-banner">
+                <div class="warning-banner-inner">
+                    <span class="warning-icon">⚠</span>
+                    <span>Unauthorized personnel will be dealt with accordingly — Sector 7-G is under surveillance</span>
+                </div>
+            </div>
+            -->
+            {% endblock %}
+
+            <!-- Django Messages -->
+            {% block messages_area %}
+            {% if messages %}
+            <div class="messages-area">
+                {% for message in messages %}
+                <div class="message-item message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endblock %}
+
+            <!-- Primary Content Block -->
+            {% block content %}
+            <!-- Default placeholder when child template doesn't override -->
+            <div class="content-panel">
+                <div class="panel-corner-br"></div>
+                <div class="panel-corner-bl"></div>
+                <h2 class="panel-title">No Data Available</h2>
+                <p>The system is awaiting input. All operations are nominal, though nothing of interest has been recorded.</p>
+                <p style="color: var(--text-dim); font-size: 0.8rem; margin-top: 20px;">
+                    > Awaiting further instructions from command...<br>
+                    > Connection unstable. Signal degrading.<br>
+                    > Everything falls apart eventually.
+                </p>
+            </div>
+            {% endblock %}
+
+        </main>
+
+
+        <!-- ── FOOTER BAR ── -->
+        <footer class="footer-bar">
+            <div class="footer-inner">
+                <div class="footer-status">
+                    <span class="status-dot"></span>
+                    <span>SYSTEM STATUS: NOMINAL (BARELY)</span>
+                </div>
+                <div>
+                    HANGAR 13 — {% block footer_year %}2025{% endblock %} — ALL RIGHTS RESERVED BY NO ONE
+                </div>
+                <div>
+                    {% block footer_version %}v0.6.66 — BUILD UNSTABLE{% endblock %}
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         JAVASCRIPT
+    ════════════════════════════════════════ -->
+    <script>
+        // Hide loading screen after page loads
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const loader = document.getElementById('loadingScreen');
+                if (loader) {
+                    loader.classList.add('hidden');
+                }
+            }, 800);
+        });
+
+        // Random flicker for extra realism on the header
+        (function randomFlicker() {
+            const header = document.querySelector('.header-bar');
+            if (!header) return;
+
+            function triggerFlicker() {
+                header.style.opacity = '0.4';
+                setTimeout(() => { header.style.opacity = '0.7'; }, 50);
+                setTimeout(() => { header.style.opacity = '1'; }, 100);
+
+                // Sometimes double-flicker
+                if (Math.random() > 0.5) {
+                    setTimeout(() => {
+                        header.style.opacity = '0.5';
+                        setTimeout(() => { header.style.opacity = '1'; }, 80);
+                    }, 200 + Math.random() * 300);
+                }
+
+                // Schedule next flicker
+                setTimeout(triggerFlicker, 3000 + Math.random() * 8000);
+            }
+
+            setTimeout(triggerFlicker, 2000);
+        })();
+
+        // Django message auto-dismiss (optional)
+        document.querySelectorAll('.message-item').forEach(function(el) {
+            setTimeout(function() {
+                el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(-20px)';
+                setTimeout(function() { el.remove(); }, 500);
+            }, 6000);
+        });
+    </script>
+
+</body>
+</html>

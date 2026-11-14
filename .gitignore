@@ -1,0 +1,7 @@
+/venv
+/env
+.env
+.vs
+.vscode/
+*.bak
+db.sqlite3
